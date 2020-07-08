@@ -4,27 +4,64 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"flag"
-	_ "fmt"
-	"net/http"
-	"os"
-	"github.com/aaronland/go-metmuseum-openaccess"
-	"github.com/aaronland/go-metmuseum-openaccess/html"
 	"encoding/csv"
 	"encoding/json"
+	"flag"
+	_ "fmt"
+	"github.com/aaronland/go-metmuseum-openaccess"
+	"github.com/aaronland/go-metmuseum-openaccess/html"
 	"io"
 	"log"
+	"net/http"
+	"os"
+	"sync"
 )
 
 func main() {
 
 	cookie_name := flag.String("cookie-name", "", "...")
 	cookie_value := flag.String("cookie-value", "", "...")
-	
+
+	with_archive := flag.String("with-archive", "", "...")
+
 	flag.Parse()
 
 	ctx := context.Background()
-	
+
+	seen := new(sync.Map)
+	writer := csv.NewWriter(os.Stdout)
+
+	if *with_archive != "" {
+
+		arch_fh, err := os.Open(*with_archive)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer arch_fh.Close()
+
+		arch_reader := csv.NewReader(arch_fh)
+
+		for {
+			row, err := arch_reader.Read()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			writer.Write(row)
+
+			seen.Store(row[0], true)
+		}
+
+		writer.Flush()
+	}
+
 	ck := &http.Cookie{
 		Name:   *cookie_name,
 		Value:  *cookie_value,
@@ -33,8 +70,7 @@ func main() {
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-	writer := csv.NewWriter(os.Stdout)
-	
+
 	for {
 
 		select {
@@ -70,8 +106,14 @@ func main() {
 		}
 
 		link := rec.LinkResource
-		
+
 		if link == "" {
+			continue
+		}
+
+		_, ok := seen.Load(link)
+
+		if ok {
 			continue
 		}
 
@@ -95,7 +137,7 @@ func main() {
 		if im.Download != nil {
 			row[2] = im.Download.String()
 		}
-		
+
 		writer.Write(row)
 	}
 

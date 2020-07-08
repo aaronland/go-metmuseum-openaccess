@@ -1,9 +1,11 @@
 package html
 
 import (
+	"bytes"
 	"context"
 	gohtml "golang.org/x/net/html"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -68,7 +70,17 @@ func ExtractImageURLsFromLink(ctx context.Context, link string, cookie *http.Coo
 
 	defer rsp.Body.Close()
 
-	return ExtractImageURLs(ctx, rsp.Body)
+	body, err := ioutil.ReadAll(rsp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// log.Println(string(body))
+
+	br := bytes.NewReader(body)
+
+	return ExtractImageURLs(ctx, br)
 }
 
 func ExtractImageURLs(ctx context.Context, fh io.Reader) (*ImageURLs, error) {
