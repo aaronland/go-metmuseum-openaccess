@@ -262,6 +262,7 @@ For example:
 $> bin/emit \
 	-bucket-uri file:///usr/local/openaccess \
 	-query 'Credit Line=(?:)Eric G\. Carlson' \
+
    | jq '.["Title"]'
    
 "Portrait of Isidore Pils"
@@ -303,6 +304,7 @@ $> bin/emit \
 	-query 'Credit Line=(?:)foundation' \
 	-query 'Credit Line=(?:)fund' \
 	-query-mode ANY \
+
    | jq '.["Credit Line"]' \
    | uniq \
    | sort
@@ -315,6 +317,51 @@ $> bin/emit \
 "Brooklyn Museum Costume Collection at The Metropolitan Museum of Art, Gift of the Brooklyn Museum, 2009; Museum Expedition 1923, Purchased with funds given by Frederic B. Pratt and Frank L. Babbott"
 "Brooklyn Museum Costume Collection at The Metropolitan Museum of Art, Gift of the Brooklyn Museum, 2009; Museum Expedition 1923, purchased with funds given by Frederic B. Pratt and Frank L. Babbott, 1923"
 ...and so on
+```
+
+Or:
+
+```
+$> bin/emit \
+	-bucket-uri file:///usr/local/openaccess \
+	-query 'Credit Line=(?:)foundation' \
+	-query 'Credit Line=(?:)fund' \
+	-query-mode ANY \
+
+   | jq '.["Country"]' \
+   | sort \
+   | uniq
+   
+""
+"Afghanistan or Iran"
+"Austria"
+"Byzantine Egypt"
+"China"
+"Democratic Republic of the Congo"
+"Egypt"
+"England"
+"Ethiopia"
+"France"
+"Germany"
+"Guatemala or Mexico"
+"India"
+"Indonesia"
+"Indonesia?"
+"Iran"
+"Iraq"
+"Italy"
+"Japan"
+"Mexico"
+"Nigeria"
+"Peru"
+"Republic of Cameroon"
+"South Africa or Kingdom of Swaziland"
+"Spain"
+"Thailand?"
+"Tibet"
+"United Kingdom"
+"United States"
+"United States|Germany"
 ```
 
 ### images

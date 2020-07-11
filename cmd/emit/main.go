@@ -198,6 +198,9 @@ func main() {
 
 	counter := int32(0)
 
+	wg := new(sync.WaitGroup)
+	mu := new(sync.RWMutex)
+
 	for {
 
 		record, err := r.Read()
@@ -216,107 +219,121 @@ func main() {
 			row[key] = record[idx]
 		}
 
-		err = assignBooleanValues(row)
+		wg.Add(1)
 
-		if err != nil {
-			log.Fatal(err)
-		}
+		go func(row map[string]interface{}) {
 
-		body, err := json.Marshal(row)
+			defer wg.Done()
 
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if qs != nil {
-
-			matches, err := query.Matches(ctx, qs, body)
+			err = assignBooleanValues(row)
 
 			if err != nil {
-				log.Fatalf("Failed query match, %v", err)
+				log.Fatal(err)
 			}
 
-			if !matches {
-				continue
-			}
-		}
+			body, err := json.Marshal(row)
 
-		var rec *openaccess.OpenAccessRecord
-
-		err = json.Unmarshal(body, &rec)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if *with_images && rec.IsPublicDomain {
-
-			link := rec.LinkResource
-			id := strings.Replace(link, openaccess.LINK_RESOURCE_PREFIX, "", 1)
-
-			v, ok := im_lookup.Load(id)
-
-			if ok {
-				row := v.([]string)
-				rec.MainImage = fmt.Sprintf("%s%s", openaccess.MAIN_IMAGE_PREFIX, row[1])
-				rec.DownloadImage = fmt.Sprintf("%s%s", openaccess.DOWNLOAD_IMAGE_PREFIX, row[2])
-			}
-		}
-
-		var output interface{}
-		output = rec
-
-		if *as_oembed {
-
-			if rec.MainImage == "" {
-				continue
+			if err != nil {
+				log.Fatal(err)
 			}
 
-			author_name := rec.ArtistDisplayName
+			if qs != nil {
 
-			if author_name == "" {
-				author_name = rec.Department
+				matches, err := query.Matches(ctx, qs, body)
+
+				if err != nil {
+					log.Fatalf("Failed query match, %v", err)
+				}
+
+				if !matches {
+					return
+				}
 			}
 
-			oe_rec := openaccess.OEmbedRecord{
-				Version:      "1.0",
-				Type:         "photo",
-				Width:        -1,
-				Height:       -1,
-				Title:        fmt.Sprintf("%s (%s)", rec.ObjectName, rec.CreditLine),
-				URL:          rec.MainImage,
-				AuthorName:   author_name,
-				AuthorURL:    rec.LinkResource,
-				ProviderName: "The Metropolitain Museum of Art",
-				ProviderURL:  "https://metmuseum.org/",
-				ObjectURI:    fmt.Sprintf("metmuseum://o/%s", rec.ObjectID),
-				// DataURL
+			var rec *openaccess.OpenAccessRecord
+
+			err = json.Unmarshal(body, &rec)
+
+			if err != nil {
+				log.Fatal(err)
 			}
 
-			output = oe_rec
-		}
+			if *with_images && rec.IsPublicDomain {
 
-		body, err = json.Marshal(output)
+				link := rec.LinkResource
+				id := strings.Replace(link, openaccess.LINK_RESOURCE_PREFIX, "", 1)
 
-		if err != nil {
-			log.Fatal(err)
-		}
+				v, ok := im_lookup.Load(id)
 
-		if *format {
-			body = pretty.Pretty(body)
-		}
+				if ok {
+					row := v.([]string)
+					rec.MainImage = fmt.Sprintf("%s%s", openaccess.MAIN_IMAGE_PREFIX, row[1])
+					rec.DownloadImage = fmt.Sprintf("%s%s", openaccess.DOWNLOAD_IMAGE_PREFIX, row[2])
+				}
+			}
 
-		body = bytes.TrimSpace(body)
+			var output interface{}
+			output = rec
 
-		new_counter := atomic.AddInt32(&counter, 1)
+			if *as_oembed {
 
-		if *as_json && new_counter > 1 {
-			wr.Write([]byte(","))
-		}
+				if rec.MainImage == "" {
+					return
+				}
 
-		wr.Write(body)
-		wr.Write([]byte("\n"))
+				author_name := rec.ArtistDisplayName
+
+				if author_name == "" {
+					author_name = rec.Department
+				}
+
+				oe_rec := openaccess.OEmbedRecord{
+					Version:      "1.0",
+					Type:         "photo",
+					Width:        -1,
+					Height:       -1,
+					Title:        fmt.Sprintf("%s (%s)", rec.ObjectName, rec.CreditLine),
+					URL:          rec.MainImage,
+					AuthorName:   author_name,
+					AuthorURL:    rec.LinkResource,
+					ProviderName: "The Metropolitain Museum of Art",
+					ProviderURL:  "https://metmuseum.org/",
+					ObjectURI:    fmt.Sprintf("metmuseum://o/%s", rec.ObjectID),
+					// DataURL
+				}
+
+				output = oe_rec
+			}
+
+			body, err = json.Marshal(output)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if *format {
+				body = pretty.Pretty(body)
+			}
+
+			body = bytes.TrimSpace(body)
+
+			new_counter := atomic.AddInt32(&counter, 1)
+
+			mu.Lock()
+
+			if *as_json && new_counter > 1 {
+				wr.Write([]byte(","))
+			}
+
+			wr.Write(body)
+			wr.Write([]byte("\n"))
+
+			mu.Unlock()
+
+		}(row)
 	}
+
+	wg.Wait()
 
 	if *as_json {
 		wr.Write([]byte("]"))
