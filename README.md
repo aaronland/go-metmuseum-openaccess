@@ -39,6 +39,10 @@ Usage of ./bin/emit:
     	Emit results as OEmbed records
   -oembed-ensure-images
     	Ensure that OEmbed records have an image. (default true)
+  -query value
+    	One or more {PATH}={REGEXP} parameters for filtering records.
+  -query-mode string
+    	Specify how query filtering should be evaluated. Valid modes are: ALL, ANY (default "ALL")
   -stdout
     	Emit to STDOUT. (default true)
   -with-images
