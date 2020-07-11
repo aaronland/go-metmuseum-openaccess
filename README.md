@@ -242,6 +242,45 @@ $> bin/emit \
 
 _The `height` and `width` properties are assigned values of "-1" because images dimensions are unavailable at this time._
 
+#### Query filters
+
+```
+$> bin/emit \
+	-bucket-uri file:///usr/local/openaccess \
+	-query 'Credit Line=(?:)Eric G\. Carlson' \
+   | jq '.["Title"]'
+   
+"Portrait of Isidore Pils"
+"Miracle of St. Sylvester; the Raising of Two Pagan Priests, after Maso di Banco, S. Croce, Florence"
+"Entrance card to the sale exhibition of Edgar Degas's collection at Galerie Georges Petit, Paris, opening March 24, 1918"
+"Saint Agatha"
+"Man Leaning on a Crutch with Left Arm Raised"
+"Studies of Four Englishmen, after James Gillray"
+"The Justice of Trajan, plate for l'Album des Salons"
+"Sheet of laid paper from the estate of Eugène Delacroix with the watermark: D&C Blauw and HP in a shield"
+"Portrait of the photographer Lochard"
+"Sheet of laid paper from the estate of Eugène Delacroix with watermark: D&C Blauw and HP in a shield."
+"Sheet of laid paper from the estate of Eugène Delacroix with watermark: D&C Blauw and HP in a shield"
+"Le Cap Martin"
+"Three Children in a Landscape"
+"Anatomical Studies of Legs"
+"Children Seated on a Hillside with a Racquet"
+"Cré chien, Loïse! T'as là une casquette un peu chouette!, plate XVIII from the suite Les Lorettes"
+"Alors, si vous permettez, j'aurai l'honneur de vous envoyer ma voiture à onze heures...Ça me botte!, published in L'Éclair, May 22, 1852"
+"Portrait of Charles Hayem"
+"Unfinished Portrait of Degas"
+"Unfinished Portrait of Degas"
+"Portrait of Benjamin Mocatta (1802–1865)"
+"Self-Portrait as Monsieur Prudhomme"
+"Henry Monnier, from Galerie contemporaine, littéraire, artistique"
+"M. Henri [sic] Monnier from L'Éclipse, October 25, 1874"
+"Self-Portrait as Monsieur Prudhomme"
+"Self-Portrait as Monsieur Prudhomme"
+"Le Perroquet de M. Cheney: \"Vos injures n'atteindront jamais à la hauteur de mon dédain!\" (Mr. Cheney's Parrot: \"Your insults will never reach the height of my disdain!\")"
+"David and Goliath, after a Capital in Vézelay Abbey"
+"A Trial Plate for Mallarmé's \"Un coup de dés\" (A Throw of the Dice)"
+```
+
 ### images
 
 Command line tool to generate a CSV document mapping Open Access `Link Resource` URLs to their corresponding "main" and "download" image URLs. It is designed to be used in concert with the `emit` tool and any records marked as `Is Public Domain: false` are excluded.

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/aaronland/go-json-query"
 	"github.com/aaronland/go-metmuseum-openaccess"
 	"github.com/tidwall/pretty"
 	"gocloud.dev/blob"
@@ -75,13 +76,31 @@ func main() {
 
 	oembed_ensure_images := flag.Bool("oembed-ensure-images", true, "Ensure that OEmbed records have an image.")
 
+	var queries query.QueryFlags
+	flag.Var(&queries, "query", "One or more {PATH}={REGEXP} parameters for filtering records.")
+
+	valid_modes := strings.Join([]string{query.QUERYSET_MODE_ALL, query.QUERYSET_MODE_ANY}, ", ")
+	desc_modes := fmt.Sprintf("Specify how query filtering should be evaluated. Valid modes are: %s", valid_modes)
+
+	query_mode := flag.String("query-mode", query.QUERYSET_MODE_ALL, desc_modes)
+
 	flag.Parse()
 
-	if *oembed_ensure_images && !*with_images {
+	ctx := context.Background()
+
+	if *as_oembed && *oembed_ensure_images && !*with_images {
 		log.Fatal("-oembed-ensure-images flag is set but -with-images is not")
 	}
 
-	ctx := context.Background()
+	var qs *query.QuerySet
+
+	if len(queries) > 0 {
+
+		qs = &query.QuerySet{
+			Queries: queries,
+			Mode:    *query_mode,
+		}
+	}
 
 	bucket, err := blob.OpenBucket(ctx, *bucket_uri)
 
@@ -207,6 +226,19 @@ func main() {
 
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if qs != nil {
+
+			matches, err := query.Matches(ctx, qs, body)
+
+			if err != nil {
+				log.Fatalf("Failed query match, %v", err)
+			}
+
+			if !matches {
+				continue
+			}
 		}
 
 		var rec *openaccess.OpenAccessRecord
