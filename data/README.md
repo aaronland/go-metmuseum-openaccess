@@ -1,6 +1,6 @@
 ## images.csv.bz2
 
-A CSV file listing the "main" and "download" URL associated with Met Museum Open Access records that have been marked as public domain.
+A CSV file listing the "main" and "download" URL associated with Met Museum Open Access records that have been marked as public domain. This file was produced using the [images tool](https://github.com/aaronland/go-metmuseum-openaccess#images).
 
 In order to reduce the size of this file common prefixes have been removed. For example:
 
