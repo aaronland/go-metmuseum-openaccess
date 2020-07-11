@@ -1,13 +1,13 @@
 # go-metmuseum-openaccess
 
-Go package for working with the The Metropolitan Museum of Art's Open Access Initiative data.
+Go package for working with the [The Metropolitan Museum of Art's Open Access Initiative](https://github.com/metmuseum/openaccess) data.
 
 ## Tools
 
-To build binary versions of these tools run the `cli` Makefile target, like this:
+To build binary versions of these tools run the `cli` Makefile target. For example:
 
 ```
-> make cli
+$> make cli
 go build -mod vendor -o bin/emit cmd/emit/main.go
 go build -mod vendor -o bin/images cmd/images/main.go
 ```
@@ -17,7 +17,7 @@ go build -mod vendor -o bin/images cmd/images/main.go
 Command line too to emit each line of the Open Access CSV document as a JSON record.
 
 ```
-> ./bin/emit -h
+$> ./bin/emit -h
 Usage of ./bin/emit:
   -bucket-uri string
     	A valid GoCloud bucket file:// URI.
@@ -94,12 +94,60 @@ $> bin/emit \
 ... and so on
 ```
 
+By default the `emit` tool outputs line-separated JSON. If you want to output a well-formed JSON array you would enable the `-json` flag. For example:
+
+```
+$> bin/emit \
+	-bucket-uri file:///usr/local/openaccess 
+	-json \
+	
+   | jq '.[]["Culture"]' \
+   | sort \
+   | uniq
+
+"Abau people"
+"Abelam people"
+"Abenaki (?)"
+"Abor, Burmese"
+"Abron peoples"
+"Acehnese"
+"Achaemenid (?)"
+"Achaemenid or Seleucid"
+"Achaemenid"
+"Acheen"
+"Acheulean"
+"Acoma Pueblo"
+"Acoma"
+"Acoma, Native American"
+"Adjora or Aion"
+"Adjora or Kopar"
+"Admiralty Islands"
+"Aduma peoples"
+"Aegean"
+"Afghan (Nuristan)"
+"Afghan (Pashtun)"
+"Afghan (Turkmen)"
+"Afghan (possibly Hazaras)"
+...
+"probably façon de Venise, northern European or Venetian"
+"probably northern European (probably German)"
+"probably provincial British"
+"probably south Lowlands; possibly Bohemia or Saxony"
+"probaby Senegalese (Fula or Wolof)"
+"saddle plate, Chinese or Tibetan; harness fittings, Tibetan"
+"southern German or Tyrolese; cranequin probably German or Swiss"
+"spearhead, Chinese or Mongolian; case, Tibetan"
+"staff, Indian; banner, Mahdist Sudanese"
+"unknown (Italian style)"
+"unknown"
+```
+
 ### images
 
 Command line tool to generate a CSV document mapping Open Access `Link Resource` URLs to their corresponding "main" and "download" image URLs. It is designed to be used in concert with the `emit` tool and any records marked as `Is Public Domain: false` are excluded.
 
 ```
-> ./bin/images -h
+$> ./bin/images -h
 Usage of ./bin/images:
   -cookie-name string
     	A valid incap_ses_{SUFFIX} cookie name.

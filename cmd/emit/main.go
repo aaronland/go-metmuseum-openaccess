@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync/atomic"
 )
 
 func assignBoolean(row map[string]interface{}, key string) error {
@@ -59,9 +60,9 @@ func main() {
 	stdout := flag.Bool("stdout", true, "Emit to STDOUT.")
 	null := flag.Bool("null", false, "Emit to /dev/null")
 
-	// as_json := flag.Bool("json", false, "Emit a JSON list.")
+	as_json := flag.Bool("json", false, "Emit a JSON list.")
 	// as_oembed := flag.Bool("oembed", false, "Emit results as OEmbed records")
-	
+
 	flag.Parse()
 
 	ctx := context.Background()
@@ -102,7 +103,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if *as_json {
+		wr.Write([]byte("["))
+	}
+
+	counter := int32(0)
+
 	for {
+
 		record, err := r.Read()
 
 		if err == io.EOF {
@@ -151,8 +159,18 @@ func main() {
 
 		body = bytes.TrimSpace(body)
 
+		new_counter := atomic.AddInt32(&counter, 1)
+
+		if *as_json && new_counter > 1 {
+			wr.Write([]byte(","))
+		}
+
 		wr.Write(body)
 		wr.Write([]byte("\n"))
+	}
+
+	if *as_json {
+		wr.Write([]byte("]"))
 	}
 
 }
