@@ -4,14 +4,37 @@ Go package for working with the The Metropolitan Museum of Art's Open Access Ini
 
 ## Tools
 
+To build binary versions of these tools run the `cli` Makefile target, like this:
+
+```
+> make cli
+go build -mod vendor -o bin/emit cmd/emit/main.go
+go build -mod vendor -o bin/images cmd/images/main.go
+```
+
 ### emit
 
 Command line too to emit each line of the Open Access CSV document as a JSON record.
 
+```
+> ./bin/emit -h
+Usage of ./bin/emit:
+  -bucket-uri string
+    	A valid GoCloud bucket file:// URI.
+  -format
+    	Format JSON output for each record.
+  -null
+    	Emit to /dev/null
+  -objects-csv string
+    	The path the MetObjects.csv file. (default "MetObjects.csv")
+  -stdout
+    	Emit to STDOUT. (default true)
+```
+
 For example:
 
 ```
-$> go run -mod vendor cmd/emit/main.go \
+$> bin/emit \
 	-bucket-uri file:///usr/local/aaronland/openaccess/ \
 	-format
 	
@@ -75,18 +98,30 @@ $> go run -mod vendor cmd/emit/main.go \
 
 Command line tool to generate a CSV document mapping Open Access `Link Resource` URLs to their corresponding "main" and "download" image URLs. It is designed to be used in concert with the `emit` tool and any records marked as `Is Public Domain: false` are excluded.
 
+```
+> ./bin/images -h
+Usage of ./bin/images:
+  -cookie-name string
+    	A valid incap_ses_{SUFFIX} cookie name.
+  -cookie-value string
+    	A valid incap_ses_{SUFFIX} cookie value.
+  -with-archive string
+    	The path to an existing CSV file containing image URL mappings. Any URLs listed in this file will be included in the output as is and not retrieved from the metmuseum.org website.
+```
+
 _You should not need to use this tool as its output is bundled in the [data/images.csv.bz2](data/) file._
 
 For example:
 
 ```
-$> go run -mod vendor cmd/emit/main.go \
+$> bin/emit \
 	-bucket-uri file:///usr/local/openaccess/ \
-	| \
-	go run -mod vendor cmd/images/main.go \
+
+   | bin/images \
 	-with-archive data/images.csv \
 	-cookie-name {COOKIE_NAME} -cookie-value {COOKIE_VALUE} \
-	> images.csv
+
+   > images.csv
 ```
 
 The `-cookie-name` and `-cookie-value` parameters are the name and value of a valid `incap_ses_{SUFFIX}` cookie. I have found the easiest way to deal with this is simply to vist the `metmuseum.org` website in a browser and, using the developer tools, copy and paste the relevant cookie data.
