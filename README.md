@@ -35,6 +35,10 @@ Usage of ./bin/emit:
     	Emit to /dev/null
   -objects-csv string
     	The path for the MetObjects.csv file. (default "MetObjects.csv")
+  -oembed
+    	Emit results as OEmbed records
+  -oembed-ensure-images
+    	Ensure that OEmbed records have an image. (default true)
   -stdout
     	Emit to STDOUT. (default true)
   -with-images
@@ -104,6 +108,8 @@ $> bin/emit \
 ... and so on
 ```
 
+#### JSON
+
 By default the `emit` tool outputs line-separated JSON. If you want to output a well-formed JSON array you would enable the `-json` flag. For example:
 
 ```
@@ -152,6 +158,8 @@ $> bin/emit \
 "unknown"
 ```
 
+#### Images
+
 By default the Met OpenAccess data does not contain image URLs. It is possible to append those URLS for public domain records by passing the `-with-images` and `-images-bucket-uri` flags. If present the tool with load a lookup table (produced by the `images` tool discussed below) and append `Main Image` and `Download Image` properties to the JSON output.
 
 For example:
@@ -178,6 +186,61 @@ $> bin/emit -format \
   "Download Image": "https://images.metmuseum.org/CRDImages/ad/original/DP105071.jpg"
 }
 ```
+
+#### OEmbed
+
+It is also possible to emit OEmbed records by passing the `-oembed` flag. By default all records are included but if you want to ensure that all OEmbed records have an image you would also pass in the `-with-images` and `-oembed-with-images` flags. For example:
+
+```
+$> bin/emit \
+	-format \
+	-oembed -oembed-with-images \
+	-with-images \
+	-bucket-uri file:///usr/local/openaccess \
+	-images-bucket-uri file:///usr/local/go-metmuseum-openaccess/data
+
+{
+  "version": "1.0",
+  "type": "photo",
+  "width": -1,
+  "height": -1,
+  "title": "Coffee spoon (Gift of Mrs. Samuel P. Avery, 1897)",
+  "url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/188051/390495/main-image",
+  "author_name": "Benjamin Brewood II",
+  "author_url": "http://www.metmuseum.org/art/collection/search/188051",
+  "provider_name": "The Metropolitain Museum of Art",
+  "provider_url": "https://metmuseum.org/",
+  "object_uri": "metmuseum://o/188051"
+}
+{
+  "version": "1.0",
+  "type": "photo",
+  "width": -1,
+  "height": -1,
+  "title": "Sugar spoon (Gift of Mrs. Samuel P. Avery, 1897)",
+  "url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/188052/390496/main-image",
+  "author_name": "Pierre-Nicolas Sommé",
+  "author_url": "http://www.metmuseum.org/art/collection/search/188052",
+  "provider_name": "The Metropolitain Museum of Art",
+  "provider_url": "https://metmuseum.org/",
+  "object_uri": "metmuseum://o/188052"
+}
+{
+  "version": "1.0",
+  "type": "photo",
+  "width": -1,
+  "height": -1,
+  "title": "Sugar spoon (Gift of Mrs. Samuel P. Avery, 1897)",
+  "url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/188053/390497/main-image",
+  "author_name": "Claude-Auguste Aubry",
+  "author_url": "http://www.metmuseum.org/art/collection/search/188053",
+  "provider_name": "The Metropolitain Museum of Art",
+  "provider_url": "https://metmuseum.org/",
+  "object_uri": "metmuseum://o/188053"
+}
+```
+
+_The `height` and `width` properties are assigned values of "-1" because images dimensions are unavailable at this time._
 
 ### images
 

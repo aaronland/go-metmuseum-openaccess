@@ -71,9 +71,15 @@ func main() {
 	images_is_bzip := flag.Bool("images-is-bzip", true, "The file defined in -images-csv is a bzip2 compressed file.")
 
 	as_json := flag.Bool("json", false, "Emit a JSON list.")
-	// as_oembed := flag.Bool("oembed", false, "Emit results as OEmbed records")
+	as_oembed := flag.Bool("oembed", false, "Emit results as OEmbed records")
+
+	oembed_ensure_images := flag.Bool("oembed-ensure-images", true, "Ensure that OEmbed records have an image.")
 
 	flag.Parse()
+
+	if *oembed_ensure_images && !*with_images {
+		log.Fatal("-oembed-ensure-images flag is set but -with-images is not")
+	}
 
 	ctx := context.Background()
 
@@ -225,7 +231,40 @@ func main() {
 			}
 		}
 
-		body, err = json.Marshal(rec)
+		var output interface{}
+		output = rec
+
+		if *as_oembed {
+
+			if rec.MainImage == "" {
+				continue
+			}
+
+			author_name := rec.ArtistDisplayName
+
+			if author_name == "" {
+				author_name = rec.Department
+			}
+
+			oe_rec := openaccess.OEmbedRecord{
+				Version:      "1.0",
+				Type:         "photo",
+				Width:        -1,
+				Height:       -1,
+				Title:        fmt.Sprintf("%s (%s)", rec.ObjectName, rec.CreditLine),
+				URL:          rec.MainImage,
+				AuthorName:   author_name,
+				AuthorURL:    rec.LinkResource,
+				ProviderName: "The Metropolitain Museum of Art",
+				ProviderURL:  "https://metmuseum.org/",
+				ObjectURI:    fmt.Sprintf("metmuseum://o/%s", rec.ObjectID),
+				// DataURL
+			}
+
+			output = oe_rec
+		}
+
+		body, err = json.Marshal(output)
 
 		if err != nil {
 			log.Fatal(err)
