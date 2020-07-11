@@ -242,6 +242,7 @@ $> bin/emit \
   "provider_url": "https://metmuseum.org/",
   "object_uri": "metmuseum://o/188053"
 }
+...and so on
 ```
 
 _The `height` and `width` properties are assigned values of "-1" because images dimensions are unavailable at this time._
