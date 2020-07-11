@@ -19,10 +19,10 @@ import (
 
 func main() {
 
-	cookie_name := flag.String("cookie-name", "", "...")
-	cookie_value := flag.String("cookie-value", "", "...")
+	cookie_name := flag.String("cookie-name", "", "A valid incap_ses_{SUFFIX} cookie name.")
+	cookie_value := flag.String("cookie-value", "", "A valid incap_ses_{SUFFIX} cookie value.")
 
-	with_archive := flag.String("with-archive", "", "...")
+	with_archive := flag.String("with-archive", "", "The path to an existing CSV file containing image URL mappings. Any URLs listed in this file will be included in the output as is and not retrieved from the metmuseum.org website.")
 
 	flag.Parse()
 

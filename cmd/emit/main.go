@@ -53,12 +53,15 @@ func assignBooleanValues(row map[string]interface{}) error {
 func main() {
 
 	bucket_uri := flag.String("bucket-uri", "", "A valid GoCloud bucket file:// URI.")
-	objects_csv := flag.String("objects-csv", "MetObjects.csv", "...")
+	objects_csv := flag.String("objects-csv", "MetObjects.csv", "The path the MetObjects.csv file.")
 
-	format := flag.Bool("format", false, "...")
-	stdout := flag.Bool("stdout", true, "...")
-	null := flag.Bool("null", false, "...")
+	format := flag.Bool("format", false, "Format JSON output for each record.")
+	stdout := flag.Bool("stdout", true, "Emit to STDOUT.")
+	null := flag.Bool("null", false, "Emit to /dev/null")
 
+	// as_json := flag.Bool("json", false, "Emit a JSON list.")
+	// as_oembed := flag.Bool("oembed", false, "Emit results as OEmbed records")
+	
 	flag.Parse()
 
 	ctx := context.Background()
