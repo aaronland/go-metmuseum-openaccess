@@ -17,18 +17,28 @@ go build -mod vendor -o bin/images cmd/images/main.go
 Command line too to emit each line of the Open Access CSV document as a JSON record.
 
 ```
-$> ./bin/emit -h
+> ./bin/emit -h
 Usage of ./bin/emit:
   -bucket-uri string
-    	A valid GoCloud bucket file:// URI.
+    	A valid GoCloud bucket file:// URI where the MetObjects CSV file is stored.
   -format
     	Format JSON output for each record.
+  -images-bucket-uri string
+    	A valid GoCloud bucket file:// URI where the images lookup CSV file is stored.
+  -images-csv string
+    	The path for the images.csv file. (default "images.csv.bz2")
+  -images-is-bzip
+    	The file defined in -images-csv is a bzip2 compressed file. (default true)
+  -json
+    	Emit a JSON list.
   -null
     	Emit to /dev/null
   -objects-csv string
-    	The path the MetObjects.csv file. (default "MetObjects.csv")
+    	The path for the MetObjects.csv file. (default "MetObjects.csv")
   -stdout
     	Emit to STDOUT. (default true)
+  -with-images
+    	Append image URLs for public domain records to output.
 ```
 
 For example:
@@ -140,6 +150,33 @@ $> bin/emit \
 "staff, Indian; banner, Mahdist Sudanese"
 "unknown (Italian style)"
 "unknown"
+```
+
+By default the Met OpenAccess data does not contain image URLs. It is possible to append those URLS for public domain records by passing the `-with-images` and `-images-bucket-uri` flags. If present the tool with load a lookup table (produced by the `images` tool discussed below) and append `Main Image` and `Download Image` properties to the JSON output.
+
+For example:
+
+``
+$> bin/emit -format \
+	-with-images \
+	-bucket-uri file:///usr/local/openaccess
+	-images-bucket-uri file:///usr/local/go-metmuseum-openaccess/data
+
+{
+  "Artist Display Bio": "Mexican, active 1607–70",
+  "Artist Nationality": "",
+  "Subregion": "",
+  "Object Wikidata URL": "https://www.wikidata.org/wiki/Q83560129",
+  ...
+  "Link Resource": "http://www.metmuseum.org/art/collection/search/9728",
+  "Medium": "Tin-glazed earthenware",
+  "Region": "",
+  "River": "",
+  "Artist Gender": "",
+  "Object Begin Date": "1660",
+  "Main Image": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/9728/24914/main-image",
+  "Download Image": "https://images.metmuseum.org/CRDImages/ad/original/DP105071.jpg"
+}
 ```
 
 ### images

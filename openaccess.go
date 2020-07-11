@@ -1,5 +1,11 @@
 package openaccess
 
+// maybe URI templates?
+
+const LINK_RESOURCE_PREFIX string = "http://www.metmuseum.org/art/collection/search/"
+const MAIN_IMAGE_PREFIX string = "https://collectionapi.metmuseum.org/api/collection/v1/iiif/"
+const DOWNLOAD_IMAGE_PREFIX string = "https://images.metmuseum.org/CRDImages/"
+
 type OpenAccessRecord struct {
 	ArtistDisplayBio      string `json:"Artist Display Bio"`
 	ArtistNationality     string `json:"Artist Nationality"`
@@ -52,4 +58,6 @@ type OpenAccessRecord struct {
 	River                 string `json:"River"`
 	ArtistGender          string `json:"Artist Gender"`
 	ObjectBeginDate       string `json:"Object Begin Date"`
+	MainImage             string `json:"Main Image,omitempty"`
+	DownloadImage         string `json:"Download Image,omitempty"`
 }

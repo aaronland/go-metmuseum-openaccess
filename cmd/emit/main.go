@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
+	"compress/bzip2"
 	"context"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
-	_ "fmt"
+	"fmt"
 	"github.com/aaronland/go-metmuseum-openaccess"
 	"github.com/tidwall/pretty"
 	"gocloud.dev/blob"
@@ -16,6 +18,8 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
+	"sync"
 	"sync/atomic"
 )
 
@@ -53,12 +57,18 @@ func assignBooleanValues(row map[string]interface{}) error {
 
 func main() {
 
-	bucket_uri := flag.String("bucket-uri", "", "A valid GoCloud bucket file:// URI.")
-	objects_csv := flag.String("objects-csv", "MetObjects.csv", "The path the MetObjects.csv file.")
+	bucket_uri := flag.String("bucket-uri", "", "A valid GoCloud bucket file:// URI where the MetObjects CSV file is stored.")
+	objects_csv := flag.String("objects-csv", "MetObjects.csv", "The path for the MetObjects.csv file.")
+
+	images_bucket_uri := flag.String("images-bucket-uri", "", "A valid GoCloud bucket file:// URI where the images lookup CSV file is stored.")
+	images_csv := flag.String("images-csv", "images.csv.bz2", "The path for the images.csv file.")
 
 	format := flag.Bool("format", false, "Format JSON output for each record.")
 	stdout := flag.Bool("stdout", true, "Emit to STDOUT.")
 	null := flag.Bool("null", false, "Emit to /dev/null")
+
+	with_images := flag.Bool("with-images", false, "Append image URLs for public domain records to output.")
+	images_is_bzip := flag.Bool("images-is-bzip", true, "The file defined in -images-csv is a bzip2 compressed file.")
 
 	as_json := flag.Bool("json", false, "Emit a JSON list.")
 	// as_oembed := flag.Bool("oembed", false, "Emit results as OEmbed records")
@@ -74,6 +84,60 @@ func main() {
 	}
 
 	defer bucket.Close()
+
+	var im_lookup *sync.Map
+
+	if *with_images {
+
+		images_bucket, err := blob.OpenBucket(ctx, *images_bucket_uri)
+
+		if err != nil {
+			log.Fatalf("Failed to open images bucket, %v", err)
+		}
+
+		defer images_bucket.Close()
+
+		im_reader, err := images_bucket.NewReader(ctx, *images_csv, nil)
+
+		if err != nil {
+			log.Fatalf("Failed to open images, %v", err)
+		}
+
+		defer im_reader.Close()
+
+		br := bufio.NewReader(im_reader)
+
+		if *images_is_bzip {
+			cr := bzip2.NewReader(br)
+			br = bufio.NewReader(cr)
+		}
+
+		r := csv.NewReader(br)
+
+		_, err = r.Read()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		im_lookup = new(sync.Map)
+
+		for {
+
+			row, err := r.Read()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			im_lookup.Store(row[0], row)
+		}
+
+	}
 
 	writers := make([]io.Writer, 0)
 
@@ -145,6 +209,20 @@ func main() {
 
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if *with_images && rec.IsPublicDomain {
+
+			link := rec.LinkResource
+			id := strings.Replace(link, openaccess.LINK_RESOURCE_PREFIX, "", 1)
+
+			v, ok := im_lookup.Load(id)
+
+			if ok {
+				row := v.([]string)
+				rec.MainImage = fmt.Sprintf("%s%s", openaccess.MAIN_IMAGE_PREFIX, row[1])
+				rec.DownloadImage = fmt.Sprintf("%s%s", openaccess.DOWNLOAD_IMAGE_PREFIX, row[2])
+			}
 		}
 
 		body, err = json.Marshal(rec)
