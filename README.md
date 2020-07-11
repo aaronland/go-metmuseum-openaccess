@@ -189,6 +189,7 @@ $> bin/emit -format \
   "Main Image": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/9728/24914/main-image",
   "Download Image": "https://images.metmuseum.org/CRDImages/ad/original/DP105071.jpg"
 }
+...and so on
 ```
 
 #### OEmbed
