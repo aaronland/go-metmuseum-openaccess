@@ -164,7 +164,7 @@ By default the Met OpenAccess data does not contain image URLs. It is possible t
 
 For example:
 
-``
+```
 $> bin/emit -format \
 	-with-images \
 	-bucket-uri file:///usr/local/openaccess
