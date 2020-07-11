@@ -75,7 +75,7 @@ $> go run -mod vendor cmd/emit/main.go \
 
 Command line tool to generate a CSV document mapping Open Access `Link Resource` URLs to their corresponding "main" and "download" image URLs. It is designed to be used in concert with the `emit` tool and any records marked as `Is Public Domain: false` are excluded.
 
-_You should not need to use this tool as its output is bundled in the [data/images.csv.bz2](data/README.md) file._
+_You should not need to use this tool as its output is bundled in the [data/images.csv.bz2](data/) file._
 
 For example:
 
