@@ -242,7 +242,17 @@ $> bin/emit \
 
 _The `height` and `width` properties are assigned values of "-1" because images dimensions are unavailable at this time._
 
-#### Query filters
+#### Inline queries
+
+You can also specify inline queries by passing one or more `-query` parameters in the form of:
+
+```
+{PATH}={REGULAR EXPRESSION}
+```
+
+Paths follow the dot notation syntax used by the [tidwall/gjson](https://github.com/tidwall/gjson) package and regular expressions are any valid [Go language regular expression](https://golang.org/pkg/regexp/). Successful path lookups will be treated as a list of candidates and each candidate's string value will be tested against the regular expression's [MatchString](https://golang.org/pkg/regexp/#Regexp.MatchString) method.
+
+For example:
 
 ```
 $> bin/emit \
@@ -279,6 +289,28 @@ $> bin/emit \
 "Le Perroquet de M. Cheney: \"Vos injures n'atteindront jamais à la hauteur de mon dédain!\" (Mr. Cheney's Parrot: \"Your insults will never reach the height of my disdain!\")"
 "David and Goliath, after a Capital in Vézelay Abbey"
 "A Trial Plate for Mallarmé's \"Un coup de dés\" (A Throw of the Dice)"
+```
+
+The default query mode is to ensure that all queries match but you can also specify that only one or more queries need to match by passing the `-query-mode ANY` flag. For example:
+
+```
+$> bin/emit \
+	-bucket-uri file:///usr/local/openaccess \
+	-query 'Credit Line=(?:)foundation' \
+	-query 'Credit Line=(?:)fund' \
+	-query-mode ANY \
+   | jq '.["Credit Line"]' \
+   | uniq \
+   | sort
+   
+"2013.905, .906: Purchase, Bequest of Stephen V. Grancsay, Rogers Fund, Helmut Nickel Gift, and funds from various donors, by exchange, 2013; 2016.311, .312: Purchase, Michael H. Pourfar Gift, 2016; 2016.403.1–.7: Purchase, Arthur Ochs Sulzberger Gift, 2016; 2016.409: Purchase, Marica F. Vilcek Gift, 2016"
+"66.199: Rogers Fund, 1966; 1984.17: Purchase, David and Dorothy Alexander and Mrs. Ridgeley Hunt Gifts, Bequest of Stephen V. Grancsay, by exchange, and funds from various donors, 1984; 1988.170: Gift of Mr. and Mrs. Ronald S. Lauder, 1988"
+"Administrative Purchase fund,  1976"
+"Arthur Hoppock Hearn Fund and funds from various donors, 1990"
+"Bequest of Nellie Kuh, by exchange, Louis V. Bell Fund, and funds from various donors, 1967"
+"Brooklyn Museum Costume Collection at The Metropolitan Museum of Art, Gift of the Brooklyn Museum, 2009; Museum Expedition 1923, Purchased with funds given by Frederic B. Pratt and Frank L. Babbott"
+"Brooklyn Museum Costume Collection at The Metropolitan Museum of Art, Gift of the Brooklyn Museum, 2009; Museum Expedition 1923, purchased with funds given by Frederic B. Pratt and Frank L. Babbott, 1923"
+...and so on
 ```
 
 ### images
