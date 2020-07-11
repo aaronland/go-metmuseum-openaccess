@@ -53,7 +53,7 @@ For example:
 
 ```
 $> bin/emit \
-	-bucket-uri file:///usr/local/aaronland/openaccess/ \
+	-bucket-uri file:///usr/local/openaccess/ \
 	-format
 	
 {
