@@ -2,10 +2,6 @@
 
 Go package for working with the The Metropolitan Museum of Art's Open Access Initiative data.
 
-## Important
-
-This is work in progress and document is incomplete.
-
 ## Tools
 
 ### emit
@@ -78,6 +74,24 @@ $> go run -mod vendor cmd/emit/main.go \
 ### images
 
 Command line tool to generate a CSV document mapping Open Access `Link Resource` URLs to their corresponding "main" and "download" image URLs. It is designed to be used in concert with the `emit` tool and any records marked as `Is Public Domain: false` are excluded.
+
+_You should not need to use this tool as its output is bundled in the [data/images.csv.bz2](data/README.md) file._
+
+For example:
+
+```
+$> go run -mod vendor cmd/emit/main.go \
+	-bucket-uri file:///usr/local/openaccess/ \
+	| \
+	go run -mod vendor cmd/images/main.go \
+	-with-archive data/images.csv \
+	-cookie-name {COOKIE_NAME -cookie-value {COOKIE_VALUE} \
+	> images.csv
+```
+
+The `-cookie-name` and `-cookie-value` parameters are the name and value of a valid `incap_ses_{SUFFIX}` cookie. I have found the easiest way to deal with this is simply to vist the `metmuseum.org` website in a browser and, using the developer tools, copy and paste the relevant cookie data.
+
+Hopefully future releases of the [openaccess data](https://github.com/metmuseum/openaccess) will include image URL information so that this tool won't be necessary anymore.
 
 ## See also
 
