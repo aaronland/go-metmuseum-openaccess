@@ -85,7 +85,7 @@ $> go run -mod vendor cmd/emit/main.go \
 	| \
 	go run -mod vendor cmd/images/main.go \
 	-with-archive data/images.csv \
-	-cookie-name {COOKIE_NAME -cookie-value {COOKIE_VALUE} \
+	-cookie-name {COOKIE_NAME} -cookie-value {COOKIE_VALUE} \
 	> images.csv
 ```
 
