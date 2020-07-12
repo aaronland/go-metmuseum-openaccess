@@ -194,12 +194,12 @@ $> bin/emit -format \
 
 #### OEmbed
 
-It is also possible to emit OEmbed records by passing the `-oembed` flag. By default all records are included but if you want to ensure that all OEmbed records have an image you would also pass in the `-with-images` and `-oembed-with-images` flags. For example:
+It is also possible to emit OEmbed records by passing the `-oembed` flag. By default all records are included but if you want to ensure that all OEmbed records have an image you would also pass in the `-with-images` and `-oembed-ensure-images` flags. For example:
 
 ```
 $> bin/emit \
 	-format \
-	-oembed -oembed-with-images \
+	-oembed -oembed-ensure-images \
 	-with-images \
 	-bucket-uri file:///usr/local/openaccess \
 	-images-bucket-uri file:///usr/local/go-metmuseum-openaccess/data
