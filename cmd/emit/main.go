@@ -296,7 +296,7 @@ func main() {
 					URL:          rec.MainImage,
 					AuthorName:   author_name,
 					AuthorURL:    rec.LinkResource,
-					ProviderName: "The Metropolitain Museum of Art",
+					ProviderName: "The Metropolitan Museum of Art",
 					ProviderURL:  "https://metmuseum.org/",
 					ObjectURI:    fmt.Sprintf("metmuseum://o/%s", rec.ObjectID),
 					// DataURL

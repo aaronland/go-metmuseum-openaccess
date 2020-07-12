@@ -213,7 +213,7 @@ $> bin/emit \
   "url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/188051/390495/main-image",
   "author_name": "Benjamin Brewood II",
   "author_url": "http://www.metmuseum.org/art/collection/search/188051",
-  "provider_name": "The Metropolitain Museum of Art",
+  "provider_name": "The Metropolitan Museum of Art",
   "provider_url": "https://metmuseum.org/",
   "object_uri": "metmuseum://o/188051"
 }
@@ -226,7 +226,7 @@ $> bin/emit \
   "url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/188052/390496/main-image",
   "author_name": "Pierre-Nicolas Sommé",
   "author_url": "http://www.metmuseum.org/art/collection/search/188052",
-  "provider_name": "The Metropolitain Museum of Art",
+  "provider_name": "The Metropolitan Museum of Art",
   "provider_url": "https://metmuseum.org/",
   "object_uri": "metmuseum://o/188052"
 }
@@ -239,7 +239,7 @@ $> bin/emit \
   "url": "https://collectionapi.metmuseum.org/api/collection/v1/iiif/188053/390497/main-image",
   "author_name": "Claude-Auguste Aubry",
   "author_url": "http://www.metmuseum.org/art/collection/search/188053",
-  "provider_name": "The Metropolitain Museum of Art",
+  "provider_name": "The Metropolitan Museum of Art",
   "provider_url": "https://metmuseum.org/",
   "object_uri": "metmuseum://o/188053"
 }
