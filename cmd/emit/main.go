@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/aaronland/go-json-query"
+	"github.com/aaronland/go-wunderkammer/oembed"	
 	"github.com/aaronland/go-metmuseum-openaccess"
 	"github.com/tidwall/pretty"
 	"gocloud.dev/blob"
@@ -287,7 +288,7 @@ func main() {
 					author_name = rec.Department
 				}
 
-				oe_rec := openaccess.OEmbedRecord{
+				oe_rec := oembed.Photo{
 					Version:      "1.0",
 					Type:         "photo",
 					Width:        -1,
